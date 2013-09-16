@@ -9,20 +9,17 @@ class FeedForwardNet:
 
 class InputLayer:
     def __init__(self, num_neurons):
-        self._layer = Layer(num_neurons)
-        self._neurons = [InputNeuron() for x in range(num_neurons)]
+        self._layer = Layer(num_neurons, InputNeuron)
 
     @property
     def neurons(self):
-        return self._neurons
+        return self._layer._neurons
     
     def connect_layer(self, other):
-        for n in self._neurons:
-            for m in other.neurons:
-                _connect_neurons(n, m)
+        self._layer.connect_layer(other)
 
 class Layer:
-    def __init__(self, num_neurons, neuron_type):
+    def __init__(self, num_neurons, neuron_type=Neuron):
         self._neurons = [neuron_type for x in range(num_neurons)]
 
     @property
