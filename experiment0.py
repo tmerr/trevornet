@@ -13,10 +13,20 @@ class InputLayer:
 
     @property
     def neurons(self):
-        return self._layer._neurons
+        return self._layer.neurons
     
     def connect_layer(self, other):
         self._layer.connect_layer(other)
+
+    def setInputs(self, inputs):
+        '''
+        inputs: An ordered collection of floats that is matched to each neuron
+        '''
+        if len(inputs) != len(self._layer.neurons):
+            raise ValueError(("inputs must have as many elements are there"
+                              "are neurons"))
+        for idx, n in enumerate(self._layer.neurons):
+            n.signal = inputs[idx]
 
 class Layer:
     def __init__(self, num_neurons, neuron_type=Neuron):
