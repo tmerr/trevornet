@@ -35,13 +35,68 @@ class Layer:
         for n in self._neurons:
             n.backpropagate2()
 
+class InputNeuron:
+    def __init__(self):
+        self._forward = []
+        self._back = []
+        self._signal = 0
+
+    @property
+    def signal(self):
+        return _signal
+
+    @signal.setter
+    def signal(self, value):
+        _signal = value
+
+    def attach_forward(self, connection):
+        self._forward.append(connection)
+
+class OutputNeuron:
+    def __init__(self, errfunction):
+        '''errfunction params: signal. returns error'''
+        self._forward = []
+        self._back = []
+        self._signal = 0
+        self._errsignal = 0
+        self._learningrate = 1
+
+    @property
+    def signal(self):
+        return _signal
+
+    @property
+    def errsignal(self):
+        return self._errsignal
+
+    def attach_back(self, connection):
+        self.back.append(connection)
+
+    def propagate(self):
+        thesum = 0
+        for b in self._back:
+            thesum += b.weight * b.signal
+        self._signal = aimath.sigmoid(thesum)
+
+    def backpropagate1(self):
+        self._errsignal = self.errfunction(signal)
+
+    def backpropagate2(self):
+        a = self._learningrate
+        b = self._errsignal
+        c = aimath.sigmoidprime(self._signal)
+        dweight = a * c
+
+        for b in back:
+            b.weight += dweight
+
 class Neuron:
     def __init__(self):
         self._forward = []
         self._back = []
         self._signal = 0
         self._errsignal = 0
-        self._learningrate = 0
+        self._learningrate = 1
 
     @property
     def signal(self):
