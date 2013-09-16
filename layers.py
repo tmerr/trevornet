@@ -12,7 +12,7 @@ class InputLayer:
     def connect_layer(self, other):
         self._layer.connect_layer(other)
 
-    def setInputs(self, inputs):
+    def set_inputs(self, inputs):
         '''
         inputs: An ordered collection of floats that is matched to each neuron
         '''
