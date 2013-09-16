@@ -7,9 +7,23 @@ class FeedForwardNet:
     def __init__(self):
         pass
 
-class Layer:
+class InputLayer:
     def __init__(self, num_neurons):
-        self._neurons = [Neuron() for x in range(num_neurons)]
+        self._layer = Layer(num_neurons)
+        self._neurons = [InputNeuron() for x in range(num_neurons)]
+
+    @property
+    def neurons(self):
+        return self._neurons
+    
+    def connect_layer(self, other):
+        for n in self._neurons:
+            for m in other.neurons:
+                _connect_neurons(n, m)
+
+class Layer:
+    def __init__(self, num_neurons, neuron_type):
+        self._neurons = [neuron_type for x in range(num_neurons)]
 
     @property
     def neurons(self):
@@ -29,9 +43,11 @@ class Layer:
         for n in self._neurons:
             n.propagate()
 
-    def backpropagate(self):
+    def backpropagate1(self):
         for n in self._neurons:
             n.backpropagate1()
+
+    def backpropagate2(self):
         for n in self._neurons:
             n.backpropagate2()
 
@@ -43,11 +59,11 @@ class InputNeuron:
 
     @property
     def signal(self):
-        return _signal
+        return self._signal
 
     @signal.setter
     def signal(self, value):
-        _signal = value
+        self._signal = value
 
     def attach_forward(self, connection):
         self._forward.append(connection)
@@ -63,7 +79,7 @@ class OutputNeuron:
 
     @property
     def signal(self):
-        return _signal
+        return self._signal
 
     @property
     def errsignal(self):
