@@ -2,7 +2,7 @@ import neurons
 
 class InputLayer:
     def __init__(self, num_neurons):
-        self._layer = Layer(num_neurons, InputNeuron)
+        self._layer = Layer(num_neurons, neurons.InputNeuron)
 
     @property
     def neurons(self):
@@ -22,8 +22,8 @@ class InputLayer:
             n.signal = inputs[idx]
 
 class OutputLayer:
-    def __input__(self, num_neurons):
-        self._layer = Layer(num_neurons, OutputNeuron)
+    def __init__(self, num_neurons):
+        self._layer = Layer(num_neurons, neurons.OutputNeuron)
 
     @property
     def neurons(self):
@@ -52,10 +52,10 @@ class Layer:
     def connect_layer(self, other):
         for n in self._neurons:
             for m in other.neurons:
-                _connect_neurons(n, m)
+                self._connect_neurons(n, m)
 
     def _connect_neurons(self, neuron1, neuron2, weight=1):
-        connection = Connection(neuron1, neuron2, weight)
+        connection = neurons.Connection(neuron1, neuron2, weight)
         neuron1.attach_forward(connection)
         neuron2.attach_back(connection)
 
