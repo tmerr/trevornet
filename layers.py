@@ -21,6 +21,26 @@ class InputLayer:
         for idx, n in enumerate(self._layer.neurons):
             n.signal = inputs[idx]
 
+class OutputLayer:
+    def __input__(self, num_neurons):
+        self._layer = Layer(num_neurons, OutputNeuron)
+
+    @property
+    def neurons(self):
+        return self._layer._neurons
+
+    def connect_layer(self, other):
+        self._layer.connect_layer(other)
+
+    def propagate(self):
+        self._layer.propagate()
+
+    def backpropagate1(self):
+        self._layer.backpropagate1()
+
+    def backpropagate2(self):
+        self._layer.backpropagate2()
+
 class Layer:
     def __init__(self, num_neurons, neuron_type=neurons.Neuron):
         self._neurons = [neuron_type for x in range(num_neurons)]
