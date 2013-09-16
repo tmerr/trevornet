@@ -36,9 +36,9 @@ class OutputLayer:
     def propagate(self):
         self._layer.propagate()
 
-    def backpropagate1(self, target):
-        for n in self._layer._neurons:
-            n.backpropagate1(target)
+    def backpropagate1(self, targetlabels):
+        for idx, n in enumerate(self._layer._neurons):
+            n.backpropagate1(targetlabels[idx])
 
     def backpropagate2(self):
         self._layer.backpropagate2()
