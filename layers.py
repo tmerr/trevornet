@@ -23,8 +23,8 @@ class InputLayer:
             n.signal = inputs[idx]
 
 class OutputLayer:
-    def __init__(self, num_neurons, error_function):
-        self._layer = Layer(num_neurons, neurons.OutputNeuron, (error_function,))
+    def __init__(self, num_neurons):
+        self._layer = Layer(num_neurons, neurons.OutputNeuron)
 
     @property
     def neurons(self):
@@ -36,8 +36,9 @@ class OutputLayer:
     def propagate(self):
         self._layer.propagate()
 
-    def backpropagate1(self):
-        self._layer.backpropagate1()
+    def backpropagate1(self, target):
+        for n in self._layer._neurons:
+            n.backpropagate1(target)
 
     def backpropagate2(self):
         self._layer.backpropagate2()

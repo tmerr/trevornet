@@ -19,9 +19,8 @@ class InputNeuron:
         self._forward.append(connection)
 
 class OutputNeuron:
-    def __init__(self, errfunction):
+    def __init__(self):
         self._neuron = Neuron()
-        self._errfunction = errfunction
 
     @property
     def signal(self):
@@ -37,8 +36,8 @@ class OutputNeuron:
     def propagate(self):
         self._neuron.propagate()
 
-    def backpropagate1(self):
-        self._neuron._errsignal = self.errfunction(signal)
+    def backpropagate1(self, target):
+        self._neuron._errsignal = target - self.signal
     
     def backpropagate2(self):
         self._neuron.backpropagate2
