@@ -8,13 +8,32 @@ class FeedForwardNet:
         pass
 
 class Layer:
-    def __init__(self):
-        pass
+    def __init__(self, num_neurons):
+        self._neurons = [Neuron() for x in range(num_neurons)]
 
-    def connect_neurons(self, neuron1, neuron2, weight=1):
+    @property
+    def neurons(self):
+        return self._neurons
+
+    def connect_layer(self, other):
+        for n in self._neurons:
+            for m in other.neurons:
+                _connect_neurons(n, m)
+
+    def _connect_neurons(self, neuron1, neuron2, weight=1):
         connection = Connection(neuron1, neuron2, weight)
         neuron1.attach_forward(connection)
         neuron2.attach_back(connection)
+
+    def propagate(self):
+        for n in self._neurons:
+            n.propagate()
+
+    def backpropagate(self):
+        for n in self._neurons:
+            n.backpropagate1()
+        for n in self._neurons:
+            n.backpropagate2()
 
 class Neuron:
     def __init__(self):
