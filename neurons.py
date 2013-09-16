@@ -82,7 +82,7 @@ class Neuron:
         c = aimath.sigmoidprime(self._signal)
         dweight = a * b * c
 
-        for b in back:
+        for b in self._back:
             b.weight += dweight
 
 class Connection:
@@ -101,7 +101,7 @@ class Connection:
 
     @property
     def signal(self):
-        return back.signal
+        return self._back.signal
 
     @property
     def errsignal(self):
