@@ -76,7 +76,7 @@ class Neuron:
             thesum += f.weight * f.errsignal
         self._errsignal = thesum
 
-    def backpropogate2(self):
+    def backpropagate2(self):
         a = self._learningrate
         b = self._errsignal
         c = aimath.sigmoidprime(self._signal)
@@ -105,4 +105,4 @@ class Connection:
 
     @property
     def errsignal(self):
-        return forward.errsignal
+        return self._forward.errsignal

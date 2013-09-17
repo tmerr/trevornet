@@ -1,4 +1,3 @@
-import copy
 import neurons
 
 class InputLayer:
@@ -14,17 +13,17 @@ class InputLayer:
 
     @property
     def inputs(self):
-        return [n.signal for n in neurons]
+        return [n.signal for n in self._layer.neurons]
 
     @inputs.setter
     def inputs(self, value):
         '''
         value: A sequence of floats that is mapped to each neuron
         '''
-        if len(inputs) != len(self._layer.neurons):
+        if len(value) != len(self._layer.neurons):
             raise ValueError(("num floats must be same as num neurons"))
         for idx, n in enumerate(self._layer.neurons):
-            n.signal = inputs[idx]
+            n.signal = value[idx]
 
 class OutputLayer:
     def __init__(self, num_neurons):
@@ -32,7 +31,7 @@ class OutputLayer:
 
     @property
     def outputs(self):
-        return [n.signal for n in neurons]
+        return [n.signal for n in self._layer.neurons]
 
     @property
     def neurons(self):
