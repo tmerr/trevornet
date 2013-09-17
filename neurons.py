@@ -1,7 +1,8 @@
 import math
 import aimath
+import random
 
-class InputNeuron:
+class InputNeuron(object):
     def __init__(self):
         self._forward = []
         self._back = []
@@ -18,7 +19,7 @@ class InputNeuron:
     def attach_forward(self, connection):
         self._forward.append(connection)
 
-class OutputNeuron:
+class OutputNeuron(object):
     def __init__(self):
         self._neuron = Neuron()
 
@@ -37,18 +38,21 @@ class OutputNeuron:
         self._neuron.propagate()
 
     def backpropagate1(self, target):
-        self._neuron._errsignal = target - self.signal
-    
+        '''Update error signal based on the given target value'''
+        s = self.signal
+        self._neuron._errsignal = aimath.sigmoidprime(s) * (s - target)
+ 
     def backpropagate2(self):
-        self._neuron.backpropagate2
+        self._neuron.backpropagate2()
 
-class Neuron:
+class Neuron(object):
     def __init__(self):
         self._forward = []
         self._back = []
         self._signal = 0
         self._errsignal = 0
-        self._learningrate = 1
+        self._learningrate = .1
+        self._bias = 1
 
     @property
     def signal(self):
@@ -65,31 +69,28 @@ class Neuron:
         self._back.append(connection)
 
     def propagate(self):
-        thesum = 0
-        for b in self._back:
-            thesum += b.weight * b.signal
-        self._signal = aimath.sigmoid(thesum)
+        thesum = sum([b.weight * b.signal for b in self._back])
+        self._signal = aimath.sigmoid(thesum + self._bias)
 
     def backpropagate1(self):
-        thesum = 0
-        for f in self._forward:
-            thesum += f.weight * f.errsignal
-        self._errsignal = thesum
+        '''Update error signal'''
+        errsum = sum([f.weight * f.errsignal for f in self._forward])
+        self._errsignal = aimath.sigmoidprime(self._signal) * errsum
 
     def backpropagate2(self):
-        a = self._learningrate
-        b = self._errsignal
-        c = aimath.sigmoidprime(self._signal)
-        dweight = a * b * c
-
+        '''Adjust weights and bias'''
+        z = self._learningrate * self._errsignal
         for b in self._back:
-            b.weight += dweight
+            tmp = b.weight
+            b.weight -= z * b.signal
 
-class Connection:
-    def __init__(self, forward, back, weight):
+        self._bias -= self._learningrate * self._errsignal
+
+class Connection(object):
+    def __init__(self, back, forward, weight):
         self._forward = forward
         self._back = back
-        self._weight = weight
+        self._weight = random.random()
 
     @property
     def weight(self):
