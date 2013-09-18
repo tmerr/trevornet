@@ -21,7 +21,7 @@ class InputLayer(object):
         value: A sequence of floats that is mapped to each neuron
         '''
         if len(value) != len(self._layer.neurons):
-            raise ValueError(("num floats must be same as num neurons"))
+            raise ValueError("num floats must be same as num neurons")
         for idx, n in enumerate(self._layer.neurons):
             n.signal = value[idx]
 
@@ -43,9 +43,15 @@ class OutputLayer(object):
     def propagate(self):
         self._layer.propagate()
 
-    def backpropagate1(self, targetlabels):
-        for idx, n in enumerate(self._layer._neurons):
-            n.backpropagate1(targetlabels[idx])
+    def backpropagate1(self, target):
+        '''
+        value: A sequence of target values that correspond to each neuron in
+               the output layer.
+        '''
+        if len(target) != len(self.neurons):
+            raise ValueError("num floats must be same as num neurons")
+        for idx, n in enumerate(self.neurons):
+            n.backpropagate1(target[idx])
 
     def backpropagate2(self):
         self._layer.backpropagate2()
