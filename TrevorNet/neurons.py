@@ -51,7 +51,7 @@ class Neuron(object):
         self._back = []
         self._signal = 0
         self._errsignal = 0
-        self._learningrate = .1
+        self._learningrate = .2
         self._bias = 1
 
     @property

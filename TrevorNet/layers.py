@@ -58,7 +58,7 @@ class OutputLayer(object):
 
 class HiddenLayer(object):
     def __init__(self, num_neurons, neuron_type=neurons.Neuron, neuron_params=()):
-        self._neurons = [neuron_type(*neuron_params) for x in range(num_neurons)]
+        self._neurons = [neuron_type() for x in range(num_neurons)]
 
     @property
     def neurons(self):

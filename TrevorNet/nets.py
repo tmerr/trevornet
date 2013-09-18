@@ -38,6 +38,7 @@ class FeedForwardNet(object):
             print("\tTarget output: {0}".format(targets))
             print("\tActual output: {0}".format(self._outlayer.outputs))
             self.display_signals()
+            self.display_weights_from(0, 0)
             print("")
             raw_input()
 
@@ -71,16 +72,11 @@ class FeedForwardNet(object):
                     line.append(element)
             print('\t' + '\t'.join(line))
 
-if __name__ == '__main__':
-    f = FeedForwardNet(2, 2, 1)
-
-    for i in range(50000):
-        f.train((1, 1), (0,))
-        f.train((1, 0), (1,))
-        f.train((0, 1), (1,))
-        f.train((0, 0), (0,))
-
-while True:
-        x = input("Input: ")
-        y = f.predict(x)
-        print("Output: {0}".format(y))
+    def display_weights_from(self, layer, neuron):
+        l = (self._inlayer, self._hiddenlayer, self._outlayer)[layer]
+        n = l.neurons[neuron]
+        out = []
+        for i, conn in enumerate(n._forward):
+            out.append('[{0}]={1}'.format(i, conn.weight))
+        print(' '.join(out))
+        print('')
