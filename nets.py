@@ -1,19 +1,19 @@
-from layers import InputLayer, Layer, OutputLayer
+from layers import InputLayer, HiddenLayer, OutputLayer
 import math
 import random
 
 class FeedForwardNet(object):
     def __init__(self, inlayersize, layersize, outlayersize):
         self._inlayer = InputLayer(inlayersize)
-        self._middlelayer = Layer(layersize)
+        self._hiddenlayer = HiddenLayer(layersize)
         self._outlayer = OutputLayer(outlayersize)
 
-        self._inlayer.connect_layer(self._middlelayer)
-        self._middlelayer.connect_layer(self._outlayer)
+        self._inlayer.connect_layer(self._hiddenlayer)
+        self._hiddenlayer.connect_layer(self._outlayer)
 
     @property
     def neurons(self):
-        return [self._inlayer.neurons, self._middlelayer.neurons, self._outlayer.neurons]
+        return [self._inlayer.neurons, self._hiddenlayer.neurons, self._outlayer.neurons]
 
     def train(self, inputs, targets, verbose=False):
         '''
@@ -23,14 +23,14 @@ class FeedForwardNet(object):
         '''
 
         self._inlayer.inputs = inputs
-        self._middlelayer.propagate()
+        self._hiddenlayer.propagate()
         self._outlayer.propagate()
         
         self._outlayer.backpropagate1(targets)
-        self._middlelayer.backpropagate1()
+        self._hiddenlayer.backpropagate1()
 
         self._outlayer.backpropagate2()
-        self._middlelayer.backpropagate2()
+        self._hiddenlayer.backpropagate2()
 
         if verbose:
             print("Training results")
@@ -47,13 +47,13 @@ class FeedForwardNet(object):
         return: a sequence of floats mapped from the output neurons
         '''
         self._inlayer.inputs = inputs
-        self._middlelayer.propagate()
+        self._hiddenlayer.propagate()
         self._outlayer.propagate()
         return self._outlayer.outputs
 
     def display_signals(self):
         col1 = self._inlayer.inputs
-        col2 = [x.signal for x in self._middlelayer.neurons]
+        col2 = [x.signal for x in self._hiddenlayer.neurons]
         col3 = self._outlayer.outputs
         numrows = max(len(col1), len(col2), len(col3))
 
@@ -72,7 +72,7 @@ class FeedForwardNet(object):
             print('\t' + '\t'.join(line))
 
 if __name__ == '__main__':
-    f = FeedForwardNet(1, 2, 1)
+    f = FeedForwardNet(2, 2, 1)
 
     for i in range(50000):
         f.train((1, 1), (0,))

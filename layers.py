@@ -2,7 +2,7 @@ import neurons
 
 class InputLayer(object):
     def __init__(self, num_neurons):
-        self._layer = Layer(num_neurons, neurons.InputNeuron)
+        self._layer = HiddenLayer(num_neurons, neurons.InputNeuron)
 
     @property
     def neurons(self):
@@ -27,7 +27,7 @@ class InputLayer(object):
 
 class OutputLayer(object):
     def __init__(self, num_neurons):
-        self._layer = Layer(num_neurons, neurons.OutputNeuron)
+        self._layer = HiddenLayer(num_neurons, neurons.OutputNeuron)
 
     @property
     def outputs(self):
@@ -50,7 +50,7 @@ class OutputLayer(object):
     def backpropagate2(self):
         self._layer.backpropagate2()
 
-class Layer(object):
+class HiddenLayer(object):
     def __init__(self, num_neurons, neuron_type=neurons.Neuron, neuron_params=()):
         self._neurons = [neuron_type(*neuron_params) for x in range(num_neurons)]
 
