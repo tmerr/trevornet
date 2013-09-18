@@ -20,8 +20,8 @@ class InputNeuron(object):
         self._forward.append(connection)
 
 class OutputNeuron(object):
-    def __init__(self):
-        self._neuron = Neuron()
+    def __init__(self, learningrate):
+        self._neuron = Neuron(learningrate)
 
     @property
     def signal(self):
@@ -46,12 +46,12 @@ class OutputNeuron(object):
         self._neuron.backpropagate2()
 
 class Neuron(object):
-    def __init__(self):
+    def __init__(self, learningrate=.2):
         self._forward = []
         self._back = []
         self._signal = 0
         self._errsignal = 0
-        self._learningrate = .2
+        self._learningrate = learningrate
         self._bias = 1
 
     @property
@@ -81,7 +81,6 @@ class Neuron(object):
         '''Adjust weights and bias'''
         z = self._learningrate * self._errsignal
         for b in self._back:
-            tmp = b.weight
             b.weight -= z * b.signal
 
         self._bias -= self._learningrate * self._errsignal

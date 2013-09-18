@@ -40,7 +40,6 @@ class FeedForwardNet(object):
             self.display_signals()
             self.display_weights_from(0, 0)
             print("")
-            raw_input()
 
     def predict(self, inputs):
         '''
