@@ -5,7 +5,9 @@ import random
 class FeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
-    def __init__(self, neuroncounts, learningrate, bias, weightfunc=random.random):
+    def __init__(self, neuroncounts, learningrate,
+            biasfunc = lambda: random.uniform(-.1, .1),
+            weightfunc=lambda: random.uniform(-.1, .1)):
         """
         Params:
             neuroncounts: The neuron count for each layer. For example to make a
@@ -15,8 +17,8 @@ class FeedForwardNet(object):
             learningrate: A small value, .1 or .2, that determines how quickly
                 the net will react to training. Higher value is faster but has
                 a risk of overshooting.
-            bias: The initial bias (usually set to 1). Shifts the sigmoid curve
-                making it possible to represent more functions.
+            biasfunc: The initial bias. Shifts the sigmoid curve making it
+                possible to represent more functions.
             weightfunc: The function that determines the initial weight between
                 any two neurons.
         """
@@ -29,8 +31,8 @@ class FeedForwardNet(object):
         outputcount = neuroncounts[-1]
 
         inputlayer = [InputNeuron() for i in range(inputcount)]
-        hiddenlayers = [[HiddenNeuron(learningrate, bias) for i in range(k)] for k in hiddencounts]
-        outputlayer = [OutputNeuron(learningrate, bias) for i in range(outputcount)]
+        hiddenlayers = [[HiddenNeuron(learningrate, biasfunc()) for i in range(k)] for k in hiddencounts]
+        outputlayer = [OutputNeuron(learningrate, biasfunc()) for i in range(outputcount)]
 
         self._layers = [inputlayer] + hiddenlayers + [outputlayer]
 

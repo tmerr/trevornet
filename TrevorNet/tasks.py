@@ -4,7 +4,7 @@ import math
 
 def XOR():
     '''Exclusive or'''
-    net = nets.FeedForwardNet((2, 3, 1), .5, 1)
+    net = nets.FeedForwardNet((2, 3, 1), .2)
     
     domain = ((1,1), (1,-1), (-1,1), (-1,-1))
     rng = ((0,), (1,), (1,), (0,))
@@ -17,7 +17,7 @@ def XOR():
 
 def sin():
     '''A normalized sin: f(x) = .5*sin(x)+.5'''
-    net = nets.FeedForwardNet((1, 50, 1), .2, 1)
+    net = nets.FeedForwardNet((1, 50, 1), .2)
 
     for i in range(300000):
         verbose = False
