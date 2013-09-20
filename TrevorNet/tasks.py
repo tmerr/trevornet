@@ -20,10 +20,8 @@ def sin():
     net = nets.FeedForwardNet((1, 50, 1), .2)
 
     for i in range(10000):
-        verbose = False
         if i%1000 == 0:
             print('progress: {0}%'.format(i/100))
-            verbose = True
         x = random.random()*2*math.pi
         y = .5*math.sin(x)+.5
         net.train((x,), (y,))
