@@ -39,12 +39,13 @@ class PropagatingNeuron(object):
 class OutputNeuron(PropagatingNeuron):
     def backpropagate1(self, target):
         s = self.signal
-        self._errsignal = aimath.sigmoidprime(s) * (s - target)
+        self._errsignal = s * (1 - s) * (s - target)
 
 class HiddenNeuron(PropagatingNeuron):
     def backpropagate1(self):
         errsum = sum([f.weight * f.errsignal for f in self._forward])
-        self._errsignal = aimath.sigmoidprime(self._signal) * errsum
+        s = self.signal
+        self._errsignal = s * (1 - s) * errsum
 
 class InputNeuron(object):
     def __init__(self):

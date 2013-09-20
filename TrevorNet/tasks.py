@@ -4,11 +4,11 @@ import math
 
 def XOR():
     '''Exclusive or'''
-    net = nets.FeedForwardNet((2, 3, 1), .2)
+    net = nets.FeedForwardNet((2, 2, 1), .5)
     
-    domain = ((1,1), (1,-1), (-1,1), (-1,-1))
+    domain = ((1,1), (1,0), (0,1), (0,0))
     rng = ((0,), (1,), (1,), (0,))
-    for i in range(100000):
+    for i in range(10000):
         r = random.randrange(4)
         net.train(domain[r], rng[r])
 
@@ -19,10 +19,10 @@ def sin():
     '''A normalized sin: f(x) = .5*sin(x)+.5'''
     net = nets.FeedForwardNet((1, 50, 1), .2)
 
-    for i in range(300000):
+    for i in range(10000):
         verbose = False
-        if i%10000 == 0:
-            print('progress: {0}%'.format(i/3000))
+        if i%1000 == 0:
+            print('progress: {0}%'.format(i/100))
             verbose = True
         x = random.random()*2*math.pi
         y = .5*math.sin(x)+.5
