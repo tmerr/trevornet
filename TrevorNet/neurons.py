@@ -68,7 +68,7 @@ class Connection(object):
     def __init__(self, back, forward, weight):
         self._forward = forward
         self._back = back
-        self._weight = random.random()
+        self._weight = weight
 
     @property
     def weight(self):

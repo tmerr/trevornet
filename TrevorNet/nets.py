@@ -1,10 +1,11 @@
 from neurons import InputNeuron, HiddenNeuron, OutputNeuron
 import itertools
+import random
 
 class FeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
-    def __init__(self, neuroncounts, learningrate, bias):
+    def __init__(self, neuroncounts, learningrate, bias, weightfunc=random.random):
         """
         Params:
             neuroncounts: The neuron count for each layer. For example to make a
@@ -15,7 +16,9 @@ class FeedForwardNet(object):
                 the net will react to training. Higher value is faster but has
                 a risk of overshooting.
             bias: The initial bias (usually set to 1). Shifts the sigmoid curve
-                making it possible to represent more functinos.
+                making it possible to represent more functions.
+            weightfunc: The function that determines the initial weight between
+                any two neurons.
         """
         if len(neuroncounts) < 2:
             raise ValueError("Need at least two layers")
@@ -34,7 +37,7 @@ class FeedForwardNet(object):
         #connect layers
         for i in range(len(self._layers)-1):
             for pair in itertools.product(self._layers[i], self._layers[i+1]):
-                pair[0].connect_forward(pair[1], 1)
+                pair[0].connect_forward(pair[1], weightfunc())
 
     def train(self, data, targets):
         """Train the neural net with the given input data and targets.
