@@ -6,8 +6,8 @@ class FeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
     def __init__(self, neuroncounts, learningrate,
-            biasfunc = lambda: random.uniform(-.1, .1),
-            weightfunc=lambda: random.uniform(-.1, .1)):
+            biasfunc = lambda: random.uniform(-1, 1),
+            weightfunc=lambda: random.uniform(-1, 1)):
         """
         Params:
             neuroncounts: The neuron count for each layer. For example to make a
@@ -75,7 +75,7 @@ class FeedForwardNet(object):
 
     def _propagate(self, data):
         for idx, val in enumerate(data):
-            self.inputlayer[idx] = val
+            self.inputlayer[idx].signal = val
         for layer in self._layers[1:]:
             for neuron in layer:
                 neuron.propagate()
