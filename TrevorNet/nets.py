@@ -85,6 +85,12 @@ class FeedForwardNet(object):
             self.outputlayer[idx].backpropagate1(val)
         for layer in self.hiddenlayers[::-1]:
             for neuron in layer:
+                neuron.backpropagate1()
+
+        for neuron in self.outputlayer:
+            neuron.backpropagate2()
+        for layer in self.hiddenlayers[::-1]:
+            for neuron in layer:
                 neuron.backpropagate2()
 
     @property
