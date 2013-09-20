@@ -3,12 +3,13 @@ import aimath
 import random
 
 class PropagatingNeuron(object):
-    def __init__(self, learningrate):
+    def __init__(self, learningrate, bias):
         self._forward = []
         self._back = []
         self._signal = 0
         self._errsignal = 0
         self._learningrate = learningrate
+        self._bias = bias
 
     def connect_forward(self, other, weight):
         conn = Connection(self, other, weight)
@@ -31,16 +32,14 @@ class PropagatingNeuron(object):
         raise NotImplementedError()
 
     def backpropagate2(self):
-        z = self._learningrate * self._errsignal
         for b in self._back:
-            b.weight -= z * b.signal
-
+            b.weight -= self._learningrate * b.signal * self._errsignal
         self._bias -= self._learningrate * self._errsignal
 
 class OutputNeuron(PropagatingNeuron):
     def backpropagate1(self, target):
         s = self.signal
-        self._neuron._errsignal = aimath.sigmoidprime(s) * (s - target)
+        self._errsignal = aimath.sigmoidprime(s) * (s - target)
 
 class HiddenNeuron(PropagatingNeuron):
     def backpropagate1(self):

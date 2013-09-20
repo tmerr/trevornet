@@ -1,50 +1,35 @@
-from layers import InputLayer, OutputLayer, HiddenLayer
 from neurons import InputNeuron, HiddenNeuron, OutputNeuron
-
-class FeedForwardNet2(object):
-    def __init__(self, *neuron_counts):
-        input_layer = InputLayer(neuron_counts[0])
-        hidden_range = range(1, len(neuron_counts)-1)
-        hidden_layers = [HiddenLayer(neuron_counts[c]) for c in hidden_range]
-        output_layer = OutputLayer(neuron_counts[-1])
-
-    def train(self, data, targets):
-        input_layer.inputs = data
-        for h in hidden_layers:
-            h.propagate()
-        output_layer.propagate()
-
-        output_layer.backpropagate1(targets)
-        for h in hidden_layers:
-            h.backpropagate1
-        output_layer.backpropagate2(targets)
-        for h in hidden.layers:
-            h.backpropagate2
-
-    def predict(self, data):
-        input_layer.inputs = data
-        for h in hidden_layers:
-            h.propagate()
-        output_layer.propagate()
+import itertools
 
 class FeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
-    def __init__(self, *layers):
-        """Parameters are the neuron count for each layer. For example to make a
-        network with 2 input neurons, 2 hidden neurons, and 1 output neuron
-        you would pass (2, 2, 1). A four layer network could be constructed with
-        (1, 3, 3, 7)."""
-        if len(layers) < 2:
+    def __init__(self, neuroncounts, learningrate, bias):
+        """
+        Params:
+            neuroncounts: The neuron count for each layer. For example to make a
+                network with 2 input neurons, 2 hidden neurons, and 1 output
+                neuron you would pass (2, 2, 1). A four layer network could
+                be constructed with (1, 3, 3, 7).
+            learningrate: A small value, .1 or .2, that determines how quickly
+                the net will react to training. Higher value is faster but has
+                a risk of overshooting.
+            bias: The initial bias (usually set to 1). Shifts the sigmoid curve
+                making it possible to represent more functinos.
+        """
+        if len(neuroncounts) < 2:
             raise ValueError("Need at least two layers")
 
         #create layers of neurons (which can also be accessed via properties)
-        self._layers = [
-            [InputNeuron() for i in range(layers[0])],
-            [[HiddenNeuron() for j in range(layers[k])]
-            for k in range(1, len(layers)-1)],
-            [OutputNeuron() for l in range(layers[-1])]
-        ]
+        inputcount = neuroncounts[0]
+        hiddencounts = [i for i in neuroncounts[1:-1]]
+        outputcount = neuroncounts[-1]
+
+        inputlayer = [InputNeuron() for i in range(inputcount)]
+        hiddenlayers = [[HiddenNeuron(learningrate, bias) for i in range(k)] for k in hiddencounts]
+        outputlayer = [OutputNeuron(learningrate, bias) for i in range(outputcount)]
+
+        self._layers = [inputlayer] + hiddenlayers + [outputlayer]
 
         #connect layers
         for i in range(len(self._layers)-1):
@@ -86,7 +71,7 @@ class FeedForwardNet(object):
     def _propagate(self, data):
         for idx, val in enumerate(data):
             self.inputlayer[idx] = val
-        for layer in self._layers[:-1]:
+        for layer in self._layers[1:]:
             for neuron in layer:
                 neuron.propagate()
     
@@ -95,7 +80,7 @@ class FeedForwardNet(object):
             self.outputlayer[idx].backpropagate1(val)
         for layer in self.hiddenlayers[::-1]:
             for neuron in layer:
-                neuron.backpropagate()
+                neuron.backpropagate2()
 
     @property
     def inputlayer(self):
