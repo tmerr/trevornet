@@ -1,43 +1,88 @@
+#! /usr/bin/env python3
 """
 Parse an IDX file like the one used in the MNIST handwritten digit database.
 A description of the format is on this page: http://yann.lecun.com/exdb/mnist/
 """
 
-def _find_dimensions(seq, curdepth=0):
-    """Find the number of dimensions of the sequence by recursively finding
-    deeper sequences. seq[0] uses 1 dimension, seq[0][0] uses 2 dimensions.
+import struct
+
+def _is_sequence(seq):
+    return hasattr(seq, '__getitem__') and not hasattr(seq, 'strip')
+
+def find_dimensions(seq):
+    """Find the dimensions sizes of the sequence by recursively finding deeper
+    sequences. A sequence with maximum indexes seq[3][5] uses dimension
+    sizes (3, 5). The length of this tuple is the number of dimensions.
 
     Params:
         lst: The sequence to find the dimensions of.
 
     Return:
-        The number of dimensions.
+        A list of dimension sizes
     """
-    if hasattr(seq, "__getitem__") and not hasattr(seq, "strip"):
-        curdepth = _find_dimensions(seq[0], curdepth + 1)
-    return curdepth
+    sizes = []
+    if _is_sequence(seq):
+        sizes.append(len(seq))
+        sizes += find_dimensions(seq[0])
+    return sizes
 
-def list_to_idx(lst, fname, typecode):
-    """Convert an n dimensional list into an IDX file and write it at fname.
-    
+def _build_magic_number(lst, typestr):
+    typebyte = {}
+    typebyte['B'] = b'\x08'
+    typebyte['b'] = b'\x09'
+    typebyte['h'] = b'\x0B'
+    typebyte['i'] = b'\x0C'
+    typebyte['f'] = b'\x0D'
+    typebyte['d'] = b'\x0E'
+    dimension_sizes = find_dimensions(seq)
+    num_dimensions = len(dimension_sizes)
+    dimensionbyte = num_dimensions.to_bytes(1, 'big')
+
+    header = b'\x00\x00' + typebyte[typestr] + dimensionbyte
+    return header
+
+def _build_
+
+def _build_data(seq, typecode):
+    #TODO: Complete this
+    if not _is_sequence(seq):
+        formatstring = '>{0}'.format(typecode)
+        print(formatstring)
+        return struct.pack(formatstring, seq)
+
+    data = bytearray()
+    if _is_sequence(seq):
+        for s in seq:
+            data.extend(_build_data(s, typecode))
+
+    return data
+
+def list_to_idx(lst, typecode):
+    #TODO: Complete this
+    """Convert an n dimensional list into IDX bytes.
+
     Params:
         lst: The n dimensional list to convert and write.
-        fname: The filename to write to.
-        typecode: The type of the data.
+        typecode: The C type the data should be stored as.
             B: unsigned byte
             b: signed byte
             h: short (2 bytes)
-            i: int (4 bytes
+            i: int (4 bytes)
             f: float (4 bytes)
             d: double (8 bytes)
     """
-    
+    magicnumber = _build_magic_number(lst, typecode)
+    data = _build_data(lst, typecode)
 
-def idx_to_list(fname):
-    """Convert the IDX file to an n dimensional list.
+    return header + data
+
+
+def idx_to_list(thebytes):
+    #TODO: Complete this
+    """Convert the IDX bytes to an n dimensional list.
     
     Params:
-        fname: The filename to read from.
+        fpath: The file path to read from.
     """
-    with open(fname, 'rb') as f:
-        pass
+    if not thebytes[0] == '\x00' and thebytes[1] == '\x00':
+        raise IOError("IDX file should start with two 0 bytes")
