@@ -1,14 +1,14 @@
 from .. import idx
 import os
 
-def test__count_dimensions():
-    yield check__count_dimensions, 9, 0
-    yield check__count_dimensions, [1, 2], 1
-    yield check__count_dimensions, [[1, 2], [3, 6, 2]], 2
-    yield check__count_dimensions, [[[1,2], [2]]], 3
+def test_find_dimensions():
+    yield check_find_dimensions, 9, []
+    yield check_find_dimensions, [1, 2], [2,]
+    yield check_find_dimensions, [[1, 2, 3], [4, 5, 6]], [2, 3]
+    yield check_find_dimensions, [[[1, 2], [2, 3]]], [1, 2, 2]
 
-def check__count_dimensions(lst, i):
-    assert idx._count_dimensions(lst) == i
+def check_find_dimensions(lst, i):
+    assert idx.find_dimensions(lst) == i
 
 # these two are equivalent according to the format on http://yann.lecun.com/exdb/mnist/
 _somelist = [[1, 2], [3, 4]]
