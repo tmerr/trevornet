@@ -80,12 +80,58 @@ def list_to_idx(lst, typecode):
 
     return magicnumber + dimension_sizes + data
 
-def idx_to_list(thebytes):
-    #TODO: Complete this
-    """Convert the IDX bytes to an n dimensional list.
+def idx_to_list(bytez):
+    """Convert the IDX bytes to nested lists
     
     Params:
-        fpath: The file path to read from.
+        bytez: The IDX file bytes.
     """
-    if not thebytes[0] == '\x00' and thebytes[1] == '\x00':
+    # byte 0: 0
+    # byte 1: 0
+    if not (bytez[0] == 0 and bytez[1] == 0):
         raise IOError("IDX file should start with two 0 bytes")
+
+    # byte 2: The number of dimensions
+    # byte 3: The type code
+    typebyte = bytez[2]
+    numdims = bytez[3]
+
+    # 4 bytes for each dimension: size of dimensions
+    fmtstring = '>' + 'i'*numdims
+    dimension_sizes = struct.unpack(fmtstring, bytez[4:4+4*numdims])
+    
+    # Rest of the data starts here
+    startoffset = 4 + 4*numdims
+
+    typedata = {}
+    typedata[8] = 'B', 1
+    typedata[9] = 'b', 1
+    typedata[11] = 'h', 2
+    typedata[12] = 'i', 4
+    typedata[13] = 'f', 4
+    typedata[14] = 'd', 8
+
+    typecode = typedata[typebyte][0]
+    elementlength = typedata[typebyte][1]
+    num_elements = (len(bytez)-startoffset)//elementlength
+
+    formatstr = ''.join(('>', typecode*num_elements))
+    flatlist = struct.unpack_from(formatstr, bytez, startoffset)
+
+    def _recursive(inputlst, dimsizes):
+        """Recursively split the flat list into chunks and merge them back into a
+        nested list structure."""
+        if len(dimsizes) == 1:
+            return list(inputlst)
+
+        outerlist = []
+
+        chunksize = len(inputlst)//dimsizes[0]
+        for i in range(0, len(inputlst), chunksize):
+            chunk = inputlst[i:i+chunksize]
+            innerlist = _recursive(chunk, dimsizes[1:])
+            outerlist.append(innerlist)
+        
+        return outerlist
+
+    return _recursive(flatlist, dimension_sizes)
