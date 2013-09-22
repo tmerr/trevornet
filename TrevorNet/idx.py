@@ -27,18 +27,20 @@ def find_dimensions(seq):
     return sizes
 
 def _build_magic_number(seq, typestr):
-    typebyte = {}
-    typebyte['B'] = b'\x08'
-    typebyte['b'] = b'\x09'
-    typebyte['h'] = b'\x0B'
-    typebyte['i'] = b'\x0C'
-    typebyte['f'] = b'\x0D'
-    typebyte['d'] = b'\x0E'
+    typebytes = {
+        'B' : b'\x08',
+        'b' : b'\x09',
+        'h' : b'\x0B',
+        'i' : b'\x0C',
+        'f' : b'\x0D',
+        'd' : b'\x0E'
+    }
+
     dimension_sizes = find_dimensions(seq)
     num_dimensions = len(dimension_sizes)
     dimensionbyte = num_dimensions.to_bytes(1, 'big')
 
-    header = b'\x00\x00' + typebyte[typestr] + dimensionbyte
+    header = b'\x00\x00' + typebytes[typestr] + dimensionbyte
     return header
 
 def _build_dimension_sizes(seq):
@@ -103,13 +105,14 @@ def idx_to_list(bytez):
     # Rest of the data starts here
     startoffset = 4 + 4*numdims
 
-    typedata = {}
-    typedata[8] = 'B', 1
-    typedata[9] = 'b', 1
-    typedata[11] = 'h', 2
-    typedata[12] = 'i', 4
-    typedata[13] = 'f', 4
-    typedata[14] = 'd', 8
+    typedata = {
+        0x08 : ('B', 1),
+        0x09 : ('b', 1),
+        0x0B : ('h', 2),
+        0x0C : ('i', 4),
+        0x0D : ('f', 4),
+        0x0E : ('d', 8)
+    }
 
     typecode = typedata[typebyte][0]
     elementlength = typedata[typebyte][1]
