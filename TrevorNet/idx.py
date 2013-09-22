@@ -26,7 +26,7 @@ def find_dimensions(seq):
         sizes += find_dimensions(seq[0])
     return sizes
 
-def _build_magic_number(lst, typestr):
+def _build_magic_number(seq, typestr):
     typebyte = {}
     typebyte['B'] = b'\x08'
     typebyte['b'] = b'\x09'
@@ -41,13 +41,17 @@ def _build_magic_number(lst, typestr):
     header = b'\x00\x00' + typebyte[typestr] + dimensionbyte
     return header
 
-def _build_
+def _build_dimension_sizes(seq):
+    bytez = bytearray()
+    
+    dims = find_dimensions(seq)
+    for size in dims:
+        bytez += (struct.pack('>i', size))
+    return bytez
 
 def _build_data(seq, typecode):
-    #TODO: Complete this
     if not _is_sequence(seq):
         formatstring = '>{0}'.format(typecode)
-        print(formatstring)
         return struct.pack(formatstring, seq)
 
     data = bytearray()
@@ -58,7 +62,6 @@ def _build_data(seq, typecode):
     return data
 
 def list_to_idx(lst, typecode):
-    #TODO: Complete this
     """Convert an n dimensional list into IDX bytes.
 
     Params:
@@ -72,10 +75,10 @@ def list_to_idx(lst, typecode):
             d: double (8 bytes)
     """
     magicnumber = _build_magic_number(lst, typecode)
+    dimension_sizes = _build_dimension_sizes(lst)
     data = _build_data(lst, typecode)
 
-    return header + data
-
+    return magicnumber + dimension_sizes + data
 
 def idx_to_list(thebytes):
     #TODO: Complete this
