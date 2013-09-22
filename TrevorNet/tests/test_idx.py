@@ -22,7 +22,6 @@ _somebytes = _get_somebytes()
 
 def test_list_to_idx():
     data = idx.list_to_idx(_somelist, 'i')
-    print(data, _somebytes)
     assert data == _somebytes
 
 def test_idx_to_list():
