@@ -1,5 +1,5 @@
 #TrevorNet
 
-This is a feed forward back propagating neural net WIP. If all goes well it will develop into a larger library.
+This is a feed forward back propagating neural net WIP.
 
-Released under the MIT License.
+Distributed under the MIT License.
