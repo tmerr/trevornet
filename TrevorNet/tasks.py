@@ -56,10 +56,8 @@ def OCR(maxtime = None):
     start_time = time.time()
 
     numimages = len(traindata)
-    tenthpercent = numimages//1000
     count = 0
     for image, targetint in zip(traindata, trainlabels):
-        if count%tenthpercent == 0:
         count += 1
 
         pixels = [row for col in image for row in col]
@@ -76,7 +74,7 @@ def OCR(maxtime = None):
 
     del traindata
     del trainlabels
-
+    
     testdatapath = 'dataset\\t10k-images.idx3-ubyte'
     testlabelpath = 'dataset\\t10k-labels.idx1-ubyte'
 
@@ -113,6 +111,7 @@ def OCR(maxtime = None):
         total, (successes/total)*100
     )
     print(thestr)
+    
 
 if __name__ == '__main__':
     XOR()
