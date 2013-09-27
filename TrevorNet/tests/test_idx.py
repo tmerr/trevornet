@@ -1,4 +1,4 @@
-from .. import idx
+from trevornet import idx
 import os
 
 def test_find_dimensions():

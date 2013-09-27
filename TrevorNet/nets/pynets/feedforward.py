@@ -2,7 +2,7 @@ from neurons import InputNeuron, HiddenNeuron, OutputNeuron
 import itertools
 import random
 
-class FeedForwardNet(object):
+class PyFeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
     def __init__(self, neuroncounts, learningrate,
