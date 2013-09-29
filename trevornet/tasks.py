@@ -1,12 +1,19 @@
-import nets
+#! /usr/bin/env python3
+
+"""
+Some example tasks for neural nets. They aren't fit to be unit tests, because
+they're slow, and I have only vague expectations of their behavior.
+"""
+
+from trevornet.nets.pynet.feedforward import PyFeedForwardNet
+from trevornet import idx
 import random
 import math
-import idx
 import time
 
 def XOR():
     """Exclusive or"""
-    net = nets.FeedForwardNet((2, 2, 1), .5)
+    net = PyFeedForwardNet((2, 2, 1), .5)
     
     domain = ((1,1), (1,0), (0,1), (0,0))
     rng = ((0,), (1,), (1,), (0,))
@@ -19,7 +26,7 @@ def XOR():
 
 def sin():
     """A normalized sin: f(x) = .5*sin(x)+.5"""
-    net = nets.FeedForwardNet((1, 50, 1), .2)
+    net = PyFeedForwardNet((1, 50, 1), .2)
 
     for i in range(10000):
         if i%1000 == 0:
@@ -38,8 +45,8 @@ def OCR(maxtime = None):
     Params:
         maxtime: The maximum time to train in seconds
     """
-    traindatapath = 'dataset\\train-images.idx3-ubyte'
-    trainlabelpath = 'dataset\\train-labels.idx1-ubyte'
+    traindatapath = 'trevornet\\dataset\\train-images.idx3-ubyte'
+    trainlabelpath = 'trevornet\\dataset\\train-labels.idx1-ubyte'
 
     print("Parsing training data...")
     with open(traindatapath, 'rb') as f:
@@ -50,7 +57,7 @@ def OCR(maxtime = None):
         trainlabels = idx.idx_to_list(f.read())
 
     print("Creating 784, 200, 50, 10 net")
-    net = nets.FeedForwardNet((28*28, 25, 25, 10), 10)
+    net = PyFeedForwardNet((28*28, 25, 25, 10), 10)
 
     print("Training...")
     start_time = time.time()
@@ -111,9 +118,8 @@ def OCR(maxtime = None):
         total, (successes/total)*100
     )
     print(thestr)
-    
 
 if __name__ == '__main__':
     XOR()
-    #sin()
-    OCR(120)
+    sin()
+    OCR(30)

@@ -1,6 +1,6 @@
 import math
-import aimath
 import random
+from . import aimath
 
 class PropagatingNeuron(object):
     def __init__(self, learningrate, bias):
