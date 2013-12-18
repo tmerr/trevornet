@@ -5,7 +5,7 @@ def sigmoid(x):
     try:
         val = 1/(1 + math.exp(-x))
     except OverflowError:
-        val = sys.float_info.max
+        val = 0.
     return val
 
 def sigmoidprime(x):
