@@ -57,7 +57,7 @@ def OCR(maxtime = None):
         trainlabels = idx.idx_to_list(f.read())
 
     print("Creating 784, 200, 50, 10 net")
-    net = PyFeedForwardNet((28*28, 25, 25, 10), 10)
+    net = PyFeedForwardNet((28*28, 25, 25, 10), .02)
 
     print("Training...")
     start_time = time.time()
@@ -68,6 +68,7 @@ def OCR(maxtime = None):
         count += 1
 
         pixels = [row for col in image for row in col]
+        pixels = [float(x)/256 for x in pixels]
         targetlist = [0 for i in range(10)]
         targetlist[targetint] = 1
 
@@ -75,15 +76,17 @@ def OCR(maxtime = None):
         assert len(targetlist) == 10
         net.train(pixels, targetlist)
 
-        if time.time() - start_time > maxtime:
+        print("Training image {0} of {1}".format(count, numimages))
+
+        if maxtime and (time.time() - start_time > maxtime):
             print("Training stopped at {0} of {1} images".format(count, numimages))
             break
 
     del traindata
     del trainlabels
     
-    testdatapath = 'dataset\\t10k-images.idx3-ubyte'
-    testlabelpath = 'dataset\\t10k-labels.idx1-ubyte'
+    testdatapath = 'trevornet\\dataset\\t10k-images.idx3-ubyte'
+    testlabelpath = 'trevornet\\dataset\\t10k-labels.idx1-ubyte'
 
     print("Parsing test data...")
     with open(testdatapath, 'rb') as f:
@@ -96,6 +99,7 @@ def OCR(maxtime = None):
     successes, failures = 0, 0
     for image, targetint in zip(testdata, testlabels):
         pixels = [row for col in image for row in col]
+        pixels = [float(x)/256 for x in pixels]
         targetlist = [0 for i in range(10)]
         targetlist[targetint] = 1
         
@@ -111,7 +115,7 @@ def OCR(maxtime = None):
         thestr = "Predictions: {0}, Success rate: {1}%".format(
             total, (successes/total)*100
         )
-        print(thestr, end='\r')
+        print(thestr)#, end='\r')
 
     print("Prediction done!")
     thestr = "Predictions: {0}, Success rate: {1}%".format(
@@ -120,6 +124,6 @@ def OCR(maxtime = None):
     print(thestr)
 
 if __name__ == '__main__':
-    XOR()
-    sin()
-    OCR(30)
+    #XOR()
+    #sin()
+    OCR()
