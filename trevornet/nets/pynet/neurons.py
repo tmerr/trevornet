@@ -1,6 +1,5 @@
-import math
-import random
 from . import aimath
+
 
 class PropagatingNeuron(object):
     def __init__(self, learningrate, bias):
@@ -25,7 +24,7 @@ class PropagatingNeuron(object):
         return self._errsignal
 
     def propagate(self):
-        thesum = sum([b.weight * b.signal for b in self._back])
+        thesum = sum((b.weight * b.signal for b in self._back))
         self._signal = aimath.sigmoid(thesum + self._bias)
 
     def backpropagate1(self):
@@ -36,16 +35,19 @@ class PropagatingNeuron(object):
             b.weight -= self._learningrate * b.signal * self._errsignal
         self._bias -= self._learningrate * self._errsignal
 
+
 class OutputNeuron(PropagatingNeuron):
     def backpropagate1(self, target):
         s = self.signal
         self._errsignal = s * (1 - s) * (s - target)
 
+
 class HiddenNeuron(PropagatingNeuron):
     def backpropagate1(self):
-        errsum = sum([f.weight * f.errsignal for f in self._forward])
+        errsum = sum((f.weight * f.errsignal for f in self._forward))
         s = self.signal
         self._errsignal = s * (1 - s) * errsum
+
 
 class InputNeuron(object):
     def __init__(self):
@@ -64,6 +66,7 @@ class InputNeuron(object):
         conn = Connection(self, other, weight)
         self._forward.append(conn)
         other._back.append(conn)
+
 
 class Connection(object):
     def __init__(self, back, forward, weight):

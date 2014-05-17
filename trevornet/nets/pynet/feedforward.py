@@ -2,16 +2,17 @@ import itertools
 import random
 from .neurons import InputNeuron, HiddenNeuron, OutputNeuron
 
+
 class PyFeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
     def __init__(self, neuroncounts, learningrate,
-            biasfunc = lambda: random.uniform(-1, 1),
-            weightfunc=lambda: random.uniform(-1, 1)):
+                 biasfunc=lambda: random.uniform(-1, 1),
+                 weightfunc=lambda: random.uniform(-1, 1)):
         """
         Params:
-            neuroncounts: The neuron count for each layer. For example to make a
-                network with 2 input neurons, 2 hidden neurons, and 1 output
+            neuroncounts: The neuron count for each layer. For example to make
+                a network with 2 input neurons, 2 hidden neurons, and 1 output
                 neuron you would pass (2, 2, 1). A four layer network could
                 be constructed with (1, 3, 3, 7).
             learningrate: A small value, .1 or .2, that determines how quickly
@@ -25,7 +26,7 @@ class PyFeedForwardNet(object):
         if len(neuroncounts) < 2:
             raise ValueError("Need at least two layers")
 
-        #create layers of neurons (which can also be accessed via properties)
+        # create layers of neurons (which can also be accessed via properties)
         inputcount = neuroncounts[0]
         hiddencounts = [i for i in neuroncounts[1:-1]]
         outputcount = neuroncounts[-1]
@@ -36,7 +37,7 @@ class PyFeedForwardNet(object):
 
         self._layers = [inputlayer] + hiddenlayers + [outputlayer]
 
-        #connect layers
+        # connect layers
         for i in range(len(self._layers)-1):
             for pair in itertools.product(self._layers[i], self._layers[i+1]):
                 pair[0].connect_forward(pair[1], weightfunc())
@@ -59,7 +60,7 @@ class PyFeedForwardNet(object):
 
     def predict(self, data):
         """Predict the target for the data.
-        
+
         Params:
             data: Some sequence of input data to map to input neurons
 
@@ -79,7 +80,7 @@ class PyFeedForwardNet(object):
         for layer in self._layers[1:]:
             for neuron in layer:
                 neuron.propagate()
-    
+
     def _backpropagate(self, targets):
         for idx, val in enumerate(targets):
             self.outputlayer[idx].backpropagate1(val)
@@ -105,3 +106,8 @@ class PyFeedForwardNet(object):
     def outputlayer(self):
         return self._layers[-1]
 
+    def backup(self, fname):
+        pass
+
+    def restore(self, fname):
+        pass
