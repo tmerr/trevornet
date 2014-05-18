@@ -10,11 +10,12 @@ from trevornet import idx
 import random
 import math
 import time
+import os
 
 def XOR():
     """Exclusive or"""
     net = PyFeedForwardNet((2, 2, 1), .5)
-    
+
     domain = ((1,1), (1,0), (0,1), (0,0))
     rng = ((0,), (1,), (1,), (0,))
     for i in range(10000):
@@ -41,17 +42,17 @@ def sin():
 
 def OCR(maxtime = None):
     """Optical character recognition
-    
+
     Params:
         maxtime: The maximum time to train in seconds
     """
-    traindatapath = 'trevornet\\dataset\\train-images.idx3-ubyte'
-    trainlabelpath = 'trevornet\\dataset\\train-labels.idx1-ubyte'
+    traindatapath = os.path.join('trevornet', 'dataset', 'train-images.idx3-ubyte')
+    trainlabelpath = os.path.join('trevornet', 'dataset', 'train-labels.idx1-ubyte')
 
     print("Parsing training data...")
     with open(traindatapath, 'rb') as f:
         traindata = idx.idx_to_list(f.read())
-    
+
     print("Parsing training labels..")
     with open(trainlabelpath, 'rb') as f:
         trainlabels = idx.idx_to_list(f.read())
@@ -84,9 +85,9 @@ def OCR(maxtime = None):
 
     del traindata
     del trainlabels
-    
-    testdatapath = 'trevornet\\dataset\\t10k-images.idx3-ubyte'
-    testlabelpath = 'trevornet\\dataset\\t10k-labels.idx1-ubyte'
+
+    testdatapath = os.path.join('trevornet', 'dataset', 't10k-images.idx3-ubyte')
+    testlabelpath = os.path.join('trevornet',' dataset', 't10k-labels.idx1-ubyte')
 
     print("Parsing test data...")
     with open(testdatapath, 'rb') as f:
@@ -102,10 +103,10 @@ def OCR(maxtime = None):
         pixels = [float(x)/256 for x in pixels]
         targetlist = [0 for i in range(10)]
         targetlist[targetint] = 1
-        
+
         outputs = net.predict(pixels)
         outputint = max(range(len(outputs)), key=outputs.__getitem__)
-    
+
         if outputint == targetint:
             successes += 1
         else:

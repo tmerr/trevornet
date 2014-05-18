@@ -5,9 +5,12 @@ A description of the format is on this page: http://yann.lecun.com/exdb/mnist/
 """
 
 import struct
+import array
+
 
 def _is_sequence(seq):
     return hasattr(seq, '__getitem__') and not hasattr(seq, 'strip')
+
 
 def find_dimensions(seq):
     """Find the dimensions sizes of the sequence by recursively finding deeper
@@ -26,14 +29,15 @@ def find_dimensions(seq):
         sizes += find_dimensions(seq[0])
     return sizes
 
+
 def _build_magic_number(seq, typestr):
     typebytes = {
-        'B' : b'\x08',
-        'b' : b'\x09',
-        'h' : b'\x0B',
-        'i' : b'\x0C',
-        'f' : b'\x0D',
-        'd' : b'\x0E'
+        'B': b'\x08',
+        'b': b'\x09',
+        'h': b'\x0B',
+        'i': b'\x0C',
+        'f': b'\x0D',
+        'd': b'\x0E'
     }
 
     dimension_sizes = find_dimensions(seq)
@@ -43,13 +47,15 @@ def _build_magic_number(seq, typestr):
     header = b'\x00\x00' + typebytes[typestr] + dimensionbyte
     return header
 
+
 def _build_dimension_sizes(seq):
     bytez = bytearray()
-    
+
     dims = find_dimensions(seq)
     for size in dims:
         bytez += (struct.pack('>i', size))
     return bytez
+
 
 def _build_data(seq, typecode):
     if not _is_sequence(seq):
@@ -62,6 +68,7 @@ def _build_data(seq, typecode):
             data.extend(_build_data(s, typecode))
 
     return data
+
 
 def list_to_idx(lst, typecode):
     """Convert an n dimensional list into IDX bytes.
@@ -82,9 +89,10 @@ def list_to_idx(lst, typecode):
 
     return magicnumber + dimension_sizes + data
 
+
 def idx_to_list(bytez):
     """Convert the IDX bytes to nested lists
-    
+
     Params:
         bytez: The IDX file bytes.
     """
@@ -101,25 +109,21 @@ def idx_to_list(bytez):
     # 4 bytes for each dimension: size of dimensions
     fmtstring = '>' + 'i'*numdims
     dimension_sizes = struct.unpack(fmtstring, bytez[4:4+4*numdims])
-    
+
     # Rest of the data starts here
     startoffset = 4 + 4*numdims
 
     typedata = {
-        0x08 : ('B', 1),
-        0x09 : ('b', 1),
-        0x0B : ('h', 2),
-        0x0C : ('i', 4),
-        0x0D : ('f', 4),
-        0x0E : ('d', 8)
+        0x08: ('B', 1),
+        0x09: ('b', 1),
+        0x0B: ('h', 2),
+        0x0C: ('i', 4),
+        0x0D: ('f', 4),
+        0x0E: ('d', 8)
     }
 
     typecode = typedata[typebyte][0]
-    elementlength = typedata[typebyte][1]
-    num_elements = (len(bytez)-startoffset)//elementlength
-
-    formatstr = ''.join(('>', typecode*num_elements))
-    flatlist = struct.unpack_from(formatstr, bytez, startoffset)
+    flatarray = array.array(typecode, bytez[startoffset:])
 
     def _recursive(inputlst, dimsizes):
         """Recursively split the flat list into chunks and merge them back into a
@@ -134,7 +138,7 @@ def idx_to_list(bytez):
             chunk = inputlst[i:i+chunksize]
             innerlist = _recursive(chunk, dimsizes[1:])
             outerlist.append(innerlist)
-        
+
         return outerlist
 
-    return _recursive(flatlist, dimension_sizes)
+    return _recursive(flatarray, dimension_sizes)
