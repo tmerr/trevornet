@@ -125,8 +125,11 @@ def idx_to_list(bytez):
 
     typecode = typedata[typebyte][0]
     flatarray = array.array(typecode, bytez[startoffset:])
-    if (sys.byteorder == 'little'):
+    if sys.byteorder == 'little':
         flatarray.byteswap()
+
+    if flatarray.itemsize != typedata[typebyte][1]:
+        raise EnvironmentError("It's assumed a C int is 4 bytes")
 
     def _recursive(inputlst, dimsizes):
         """Recursively split the flat list into chunks and merge them back into a
@@ -135,12 +138,10 @@ def idx_to_list(bytez):
             return list(inputlst)
 
         outerlist = []
-
         chunksize = len(inputlst)//dimsizes[0]
         for i in range(0, len(inputlst), chunksize):
             chunk = inputlst[i:i+chunksize]
-            innerlist = _recursive(chunk, dimsizes[1:])
-            outerlist.append(innerlist)
+            outerlist.append(_recursive(chunk, dimsizes[1:]))
 
         return outerlist
 
