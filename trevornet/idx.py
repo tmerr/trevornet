@@ -6,6 +6,7 @@ A description of the format is on this page: http://yann.lecun.com/exdb/mnist/
 
 import struct
 import array
+import sys
 
 
 def _is_sequence(seq):
@@ -124,6 +125,8 @@ def idx_to_list(bytez):
 
     typecode = typedata[typebyte][0]
     flatarray = array.array(typecode, bytez[startoffset:])
+    if (sys.byteorder == 'little'):
+        flatarray.byteswap()
 
     def _recursive(inputlst, dimsizes):
         """Recursively split the flat list into chunks and merge them back into a
