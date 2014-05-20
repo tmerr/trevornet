@@ -77,6 +77,12 @@ class PyFeedForwardNet(object):
 
         return cls(layersresult)
 
+    @classmethod
+    def fromfile(cls, fpath):
+        with open(fpath) as f:
+            thelist = eval(f.read())
+        return cls.fromlist(thelist)
+
     def tolist(self):
         layers_rep = []
         layers_rep.append(len(self._layers[0]))
@@ -89,6 +95,11 @@ class PyFeedForwardNet(object):
                 layer_rep.append([a, b, c])
             layers_rep.append(layer_rep)
         return layers_rep
+
+    def tofile(self, fname):
+        savednet = str(self._net.tolist())
+        with open(fname, 'w') as f:
+            f.write(savednet)
 
     def train(self, data, targets):
         """Train the neural net with the given input data and targets.
