@@ -2,41 +2,53 @@ from trevornet import idx
 from trevornet.nets.feedforward import PyFeedForwardNet
 import os
 from tkinter import *
+from tkinter import filedialog
 import multiprocessing
 import queue
 import sys
+
 
 class OcrPresentation(object):
     '''
     Lets the user modify self.pixels via a GUI by dragging left click.
     Points are automatically sent to the neural net which updates a label.
     '''
-    def __init__(self, fname):
-        root = Tk()
-        root.title("Character recognition")
-        root.resizable(0, 0)
+    def __init__(self):
+        self.root = Tk()
+        self.root.title("Character recognition")
+        self.root.resizable(0, 0)
 
-        c = Canvas(root, bg="white", width=28*8, height=28*8)
-        c.configure(cursor="crosshair")
+        frame = Frame(self.root)
+        frame.pack()
+        loadbtn = Button(frame, text='Load existing net', command=self.load)
+        loadbtn.pack(side=LEFT)
+        trainbtn = Button(frame, text='Create and train new net', command=self.trainnew)
+        trainbtn.pack(side=LEFT)
 
-        c.pack()
-        c.bind("<B1-Motion>", self.drawpoint)
+        self.canvas = Canvas(self.root, bg="white", width=28*8, height=28*8)
+        self.canvas.configure(cursor="crosshair")
+        self.canvas.pack()
+        self.canvas.bind("<B1-Motion>", self.drawpoint)
 
-        b = Button(root, text='Clear', command=self.clearpressed)
-        b.pack()
-
-        e = Button(root, text='Exit', command=self.exitpressed)
-        e.pack()
-
-        self.label = Label(root, text='-1')
+        frame2 = Frame(self.root)
+        frame2.pack()
+        clearbtn = Button(frame2, text='Clear', command=self.clearpressed)
+        clearbtn.pack(side=LEFT)
+        self.label = Label(self.root, text='-1')
         self.label.pack()
-
-        self.root = root
-        self.canvas = c
-        self.exit = e
+        exit = Button(frame2, text='Exit', command=self.exitpressed)
+        exit.pack(side=LEFT)
 
         self.pixels = [[0 for x in range(28)] for y in range(28)]
 
+        self.worker = None
+
+        self.root.after(0, self.update())
+        self.root.mainloop()
+
+    def startworker(self, fname):
+        if not self.worker is None:
+            self.worker.terminate()
         self.output_queue = multiprocessing.Queue(1)
         self.input_queue = multiprocessing.Queue(1)
         self.worker = multiprocessing.Process(target=OcrWorker,
@@ -44,12 +56,22 @@ class OcrPresentation(object):
                                               daemon=True)
         self.worker.start()
         self.output_queue.put_nowait(self.pixels)
-        root.after(0, self.update())
-        root.mainloop()
+
+    def trainnew(self):
+        fname = filedialog.asksaveasfilename(parent=self.root, title='Choose where to save the trained net to')
+        net = Ocr.fromrandom()
+        net.train()
+        net.tofile(fname)
+        self.startworker(fname)
+
+    def load(self):
+        fname = filedialog.askopenfilename(parent=self.root, title='Choose a file to neural net file to use')
+        self.startworker(fname)
 
     def exitpressed(self):
         self.root.quit()
-        self.worker.terminate()
+        if not self.worker is None:
+            self.worker.terminate()
 
     def clearpressed(self):
         self.pixels = [[0 for x in range(28)] for y in range(28)]
@@ -71,14 +93,15 @@ class OcrPresentation(object):
     def update(self):
         # Try to push an image out to the net, and check for any results that
         # came back.
-        try:
-            prediction = self.input_queue.get_nowait()
-            self.label.config(text='Prediction: {0}'.format(prediction))
-            self.output_queue.put_nowait(self.pixels)
-        except queue.Empty:
-            pass
-        except queue.Full:
-            print("This shouldn't happen.")
+        if not self.worker is None:
+            try:
+                prediction = self.input_queue.get_nowait()
+                self.label.config(text='Prediction: {0}'.format(prediction))
+                self.output_queue.put_nowait(self.pixels)
+            except queue.Empty:
+                pass
+            except queue.Full:
+                print("This shouldn't happen.")
         self.root.after(20, self.update)
 
 
@@ -204,4 +227,4 @@ class Ocr(object):
         print(thestr)
 
 if __name__ == '__main__':
-    OcrPresentation(sys.argv[1])
+    OcrPresentation()
