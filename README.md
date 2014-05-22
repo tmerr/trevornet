@@ -1,15 +1,23 @@
 #TrevorNet
 
-This repo is for any code I write related to AI. So far there's an implementation of a neural net using backpropagation, paired with some example tasks that can be launched with
+A neural net using backpropagation including three example tasks: optical character recognition, sin function approximation, and xor approximation. If you're looking for a library that's good and fast, you've come to the wrong place! But aside from idx.py I tried to keep the code simple and readable, so maybe it will be of use to someone. There aren't any dependencies other than Python3 yet.
 
-'''
-python -m trevornet ocr
-python -m trevornet xor
-python -m trevornet sin
-'''
 
-The optical character recognition one has a gui where you can scribble in numbers and see how bad of a job it does predicting what they are. It trains on the  [the MNIST database of handwritten digits](http://yann.lecun.com/exdb/mnist/) and is ungodly slow. After 2 hours of training on a 784 x 25 x 25 x 10 net (learning rate .02) it scored 83% correct guesses on the test set. It should be possible to do better with different parameters.
+###Optical character recognition: 
+The optical character recognition has a GUI that lets you draw numbers as a challenge for the AI to recognize it. To train this neural net you'll need each of the four files in [the MNIST database of handwritten digits](http://yann.lecun.com/exdb/mnist/) extracted to the dataset folder. I haven't played with the neuron count or learning rate much, but 784 x 25 x 25 x 10 net with learning rate of 0.02 scores 83% correct on the test set. Also included is the pre-trained `ocrnet.dat`. To get started enter
 
-The only dependency is the MNIST database. Extract the four files [here](http://yann.lecun.com/exdb/mnist/) to the dataset folder and you're god to go. Also for the lazy (*cough* me) there's an included net already trained called ocrnet.dat.
+```python -m trevornet.ocr```
 
-Distributed under the MIT License.
+###Xor
+
+An approximation of the xor function.
+```python -m trevornet.xor```
+
+###Sin
+
+An approximation of the sin function.
+```python -m trevornet.sin```
+
+# License
+
+MIT
