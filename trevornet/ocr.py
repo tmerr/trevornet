@@ -4,6 +4,7 @@ import os
 from tkinter import *
 import multiprocessing
 import queue
+import sys
 
 class OcrPresentation(object):
     '''
@@ -24,11 +25,16 @@ class OcrPresentation(object):
         b = Button(root, text='Clear', command=self.clearpressed)
         b.pack()
 
+        e = Button(root, text='Exit', command=self.exitpressed)
+        e.pack()
+
         self.label = Label(root, text='-1')
         self.label.pack()
 
         self.root = root
         self.canvas = c
+        self.exit = e
+
         self.pixels = [[0 for x in range(28)] for y in range(28)]
 
         self.output_queue = multiprocessing.Queue(1)
@@ -40,6 +46,10 @@ class OcrPresentation(object):
         self.output_queue.put_nowait(self.pixels)
         root.after(0, self.update())
         root.mainloop()
+
+    def exitpressed(self):
+        self.root.quit()
+        self.worker.terminate()
 
     def clearpressed(self):
         self.pixels = [[0 for x in range(28)] for y in range(28)]
@@ -192,3 +202,6 @@ class Ocr(object):
             total, (successes/total)*100
         )
         print(thestr)
+
+if __name__ == '__main__':
+    OcrPresentation(sys.argv[1])
