@@ -1,6 +1,6 @@
 #TrevorNet
 
-A neural net using backpropagation including three example tasks: optical character recognition, sin function approximation, and xor approximation. If you're looking for a library that's good and fast, you've come to the wrong place! But aside from idx.py I tried to keep the code simple and readable, so maybe it will be of use to someone. There aren't any dependencies other than Python3 yet.
+A neural net using backpropagation including three example tasks: optical character recognition, sin function approximation, and xor approximation. If you're looking for a library that's good and fast, you've come to the wrong place! All that matters here is that it's readable. There aren't any dependencies other than Python3 yet.
 
 
 ###Optical character recognition: 
