@@ -1,23 +1,14 @@
 #TrevorNet
 
-A neural net using backpropagation including three example tasks: optical character recognition, sin function approximation, and xor approximation. If you're looking for a library that's good and fast, you've come to the wrong place! All that matters here is that it's readable. There aren't any dependencies other than Python3 yet.
+This is the repo I'm using to keep track of my AI related projects. I'm just learning the basics, working on questions like "What, neural nets are a thing?" and "How can I use that to take over the planet?". So far I have
+- A (slow!) python implementation of a neural network using backpropagation as the learning algo. 
+- Code to read in the MNIST database of handwritten digits.
+- A GUI that lets you draw letters/numbers by hand and see the neural net's guess of what it is.
 
+These commands do things if you run them from within this folder...
 
-###Optical character recognition: 
-The optical character recognition has a GUI that lets you draw numbers as a challenge for the AI to recognize it. To train this neural net you'll need each of the four files in [the MNIST database of handwritten digits](http://yann.lecun.com/exdb/mnist/) extracted to the dataset folder. I haven't played with the neuron count or learning rate much, but 784 x 25 x 25 x 10 net with learning rate of 0.02 scores 83% correct on the test set. Also included is the pre-trained `ocrnet.dat`. To get started enter
+```python -m trevornet.ocr``` ```python -m trevornet.sin``` ```python -m trevornet.xor```
 
-```python -m trevornet.ocr```
+It works, sort of. The saved neural net in this directory (ocrnet.dat) gets 83% of predictions correct in MNIST's test set (note: it was trained with a 784 x 25 x 25 x 10 net with learning rate of 0.02). But when you test out that same net with the GUI it doesn't work nearly as well. That's probably because the GUI doesn't size normalize whereas MNIST does. But even then there are more problems- 83% leaves much to be desired. Is it the error function? Activation function? Layer sizes? Learning rate? No idea. I don't think there's much to gain from unguided trial and error so I'll come back to this when I learn more theory.
 
-###Xor
-
-An approximation of the xor function.
-```python -m trevornet.xor```
-
-###Sin
-
-An approximation of the sin function.
-```python -m trevornet.sin```
-
-# License
-
-MIT
+License: MIT
