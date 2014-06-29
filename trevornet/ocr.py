@@ -5,8 +5,52 @@ from tkinter import *
 from tkinter import filedialog
 import multiprocessing
 import queue
-import sys
+import math
 
+
+def read_point_bilinear(x, y, image):
+    '''
+    Read a point in the image of [[number]] using bilinear interpolation.
+    Algorithm is from the wikipedia article, translated to python.
+
+    Params:
+        x: The real number x coordinate
+        y: The real number y coordinate
+        image: A collection of real numbers that is indexable [y][x]
+
+    Return:
+        A real number that is the interpolated value of the pixel at the
+        given x and y.
+    '''
+
+    if not (0 <= y <= len(image)-1):
+        raise IndexError('y={0} out of range'.format(y))
+
+    if not (0 <= x <= len(image[0])-1):
+        raise IndexError('x={0} out of range'.format(x))
+
+    if float(x).is_integer() and float(y).is_integer():
+        return image[y][x]
+
+    x1 = math.floor(x)
+    x2 = math.ceil(x)
+    y1 = math.floor(y)
+    y2 = math.ceil(y)
+
+    out11 = read_point_bilinear(x1, y1, image)
+    out12 = read_point_bilinear(x1, y2, image)
+    out21 = read_point_bilinear(x2, y1, image)
+    out22 = read_point_bilinear(x2, y2, image)
+
+    numerator = \
+        out11 * (x2 - x) * (y2 - y) + \
+        out12 * (x2 - x) * (y - y1) + \
+        out21 * (x - x1) * (y2 - y) + \
+        out22 * (x - x1) * (y - y1)
+    denominator = (x2 - x1) * (y2 - y1)
+    out = numerator / denominator
+
+    return out
 
 class OcrPresentation(object):
     '''
@@ -28,7 +72,7 @@ class OcrPresentation(object):
         self.canvas = Canvas(self.root, bg="white", width=28*8, height=28*8)
         self.canvas.configure(cursor="crosshair")
         self.canvas.pack()
-        self.canvas.bind("<B1-Motion>", self.drawpoint)
+        self.canvas.bind("<B1-Motion>", self.mouseheld)
 
         frame2 = Frame(self.root)
         frame2.pack()
@@ -70,14 +114,14 @@ class OcrPresentation(object):
 
     def exitpressed(self):
         self.root.quit()
-        if not self.worker is None:
+        if self.worker is not None:
             self.worker.terminate()
 
     def clearpressed(self):
         self.pixels = [[0 for x in range(28)] for y in range(28)]
         self.canvas.create_rectangle(0, 0, 28*8, 28*8, fill='white', outline='white')
 
-    def drawpoint(self, event):
+    def mouseheld(self, event):
         gridx, gridy = event.x//8, event.y//8
         if 0 < gridx > 27 or 0 < gridy > 27:
             return
@@ -90,10 +134,11 @@ class OcrPresentation(object):
         self.canvas.create_rectangle(screenx, screeny, screenx+7, screeny+7,
                                      fill=fillcolor, outline=fillcolor)
 
+
     def update(self):
         # Try to push an image out to the net, and check for any results that
         # came back.
-        if not self.worker is None:
+        if self.worker is not None:
             try:
                 prediction = self.input_queue.get_nowait()
                 self.label.config(text='Prediction: {0}'.format(prediction))
