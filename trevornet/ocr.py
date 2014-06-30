@@ -53,10 +53,10 @@ def read_point_bilinear(x, y, image):
     out22 = read_point_bilinear(x2, y2, image)
 
     out = \
-        out11 * (1-x) * (1-y) + \
-        out21 * x * (1-y) + \
-        out12 * (1-x) * y + \
-        out22 * x*y
+        out11 * (x2 - x) * (y2 - y) + \
+        out21 * (x - x1) * (y2 - y) + \
+        out12 * (x2 - x) * (y - y1) + \
+        out22 * (x - x1) * (y - y1)
 
     return out
 
@@ -299,7 +299,7 @@ class OcrPresentation(object):
 
     def clearpressed(self):
         self.pixels = [[0 for x in range(28)] for y in range(28)]
-        self.canvas.create_rectangle(0, 0, 28*8, 28*8, fill='white', outline='white')
+        self.canvas.delete('all')
         self.maxoutputsignal = 0
 
     def mouseheld(self, event):
