@@ -6,6 +6,10 @@ from tkinter import filedialog
 import multiprocessing
 import queue
 import math
+import copy
+
+
+DEBUG = False
 
 
 def read_point_bilinear(x, y, image):
@@ -23,14 +27,20 @@ def read_point_bilinear(x, y, image):
         given x and y.
     '''
 
+    if len(image) == 1:
+        y = math.floor(y)
+
+    if len(image[0]) == 1:
+        x = math.floor(x)
+
     if not (0 <= y <= len(image)-1):
-        raise IndexError('y={0} out of range'.format(y))
+        raise IndexError('index y={0} not within height {1}'.format(y, len(image)))
 
     if not (0 <= x <= len(image[0])-1):
-        raise IndexError('x={0} out of range'.format(x))
+        raise IndexError('index x={0} not within width {1}'.format(x, len(image[0])))
 
     if float(x).is_integer() and float(y).is_integer():
-        return image[y][x]
+        return image[int(y)][int(x)]
 
     x1 = math.floor(x)
     x2 = math.ceil(x)
@@ -42,15 +52,184 @@ def read_point_bilinear(x, y, image):
     out21 = read_point_bilinear(x2, y1, image)
     out22 = read_point_bilinear(x2, y2, image)
 
-    numerator = \
-        out11 * (x2 - x) * (y2 - y) + \
-        out12 * (x2 - x) * (y - y1) + \
-        out21 * (x - x1) * (y2 - y) + \
-        out22 * (x - x1) * (y - y1)
-    denominator = (x2 - x1) * (y2 - y1)
-    out = numerator / denominator
+    out = \
+        out11 * (1-x) * (1-y) + \
+        out21 * x * (1-y) + \
+        out12 * (1-x) * y + \
+        out22 * x*y
 
     return out
+
+
+def resize(width, height, image):
+    '''
+    Resize an image of [[number]] to the given size using bilinear
+    interpolation. The initial width and height are inferred by using
+    len on the image.
+
+    Params:
+        width: The new width in pixels (a natural number)
+        height: The new height in pixels (a natural number)
+        image: A collection of real numbers that is indexable [y][x]
+
+    Return:
+        A new image resized to the given width and height.
+    '''
+
+    if width < 1 or not float(width).is_integer():
+        raise ValueError('width={0} must be a natural number.'.format(height))
+
+    if height < 1 or not float(height).is_integer():
+        raise ValueError('height={0} must be a natural number.'.format(height))
+
+    heighti = len(image)
+    widthi = len(image[0])
+
+    if (width == widthi and height == heighti):
+        return copy.deepcopy(image)
+
+    xinterval = widthi / width
+    yinterval = heighti / height
+
+    xstart = xinterval/2
+    ystart = yinterval/2
+
+    squishx = (widthi-1)/widthi
+    squishy = (heighti-1)/heighti
+
+    xs = [(xstart + x*xinterval)*squishx for x in range(width)]
+    ys = [(ystart + y*yinterval)*squishy for y in range(height)]
+
+    if (DEBUG):
+        thestr = 'Resizing size {0}, {1} to size {2}, {3}, xinterval {4}, yinterval {5}, xstart {6}, ystart {7}'
+        print(thestr.format(widthi, heighti, width, height, xinterval, yinterval, xstart, ystart))
+        print(xs)
+        print(ys)
+
+    return [[read_point_bilinear(x, y, image) for x in xs] for y in ys]
+
+
+def get_occupied_region(image):
+    '''
+    Returns the region of the image as that is occupied by content. The goal is
+    to distinguish what is whitespace and what is not.
+
+    Return:
+        The region is a tuple (x, y, width, height) within the image.
+    '''
+
+    x1 = len(image[0]) - 1
+    y1 = len(image) - 1
+    x2 = 0
+    y2 = 0
+
+    for y_idx, line in enumerate(image):
+        for x_idx, px in enumerate(line):
+            if px > 0:
+                x1 = min(x1, x_idx)
+                y1 = min(y1, y_idx)
+                x2 = max(x2, x_idx)
+                y2 = max(y2, y_idx)
+
+    xcount = max(x2 - x1 + 1, 0)
+    ycount = max(y2 - y1 + 1, 0)
+
+    return (x1, y1, xcount, ycount)
+
+
+def crop(region, image):
+    '''
+    Crops the image to the given region.
+
+    Params:
+        region: The region as a tuple (x, y, width, height) to crop with.
+        image: The image to crop.
+
+    Return:
+        The cropped image.
+    '''
+
+    (x, y, width, height) = region
+
+    tooleft = x < 0
+    tootop = y < 0
+    tooright = x + width > len(image[0])
+    toobottom = y + height > len(image)
+    if tooleft or tootop or tooright or toobottom:
+        errorstr = 'Crop region {0} must be within the image\'s width={1}, height={2}'
+        raise IndexError(errorstr.format(region, len(image[0]), len(image)))
+
+    if width == 0 or height == 0:
+        return [[0]]
+
+    return [[image[y+m][x+n] for n in range(width)] for m in range(height)]
+
+
+def paste(source, onto, position):
+    ontocopy = copy.deepcopy(onto)
+    (startx, starty) = position
+    for yi, line in enumerate(source):
+        for xi, val in enumerate(line):
+            ontocopy[starty + yi][startx + xi] = val
+    return ontocopy
+
+
+def upscale_to_aspect(size, aspect):
+    '''
+    Scale up a size to match an aspact ratio.
+
+    Params:
+        The size (width, height)
+        The aspect ratio x/y
+
+    Return:
+        The scaled up size (width, height) where width and heights are integral.
+    '''
+    (width, height) = size
+    size_aspect = width / height
+
+    if size_aspect == aspect:
+        return size
+    elif size_aspect < aspect:
+        return (round(height*aspect), height)
+    elif size_aspect > aspect:
+        return (width, round(width/aspect))
+
+
+def bound(lower, upper, value):
+    return max(lower, min(upper, value))
+
+
+def size_normalize_contents(image):
+    height = len(image)
+    width = len(image[0])
+
+    if (width == 0 or height == 0):
+        return image
+
+    occx, occy, occwidth, occheight = get_occupied_region(image)
+    if (occwidth == 0 or occheight == 0):
+        return image
+
+    upscaledw, upscaledh = upscale_to_aspect((occwidth, occheight), width/height)
+    diffw = upscaledw - occwidth
+    diffh = upscaledh - occheight
+    newx = int(bound(0, 27, occx - diffw/2))
+    newy = int(bound(0, 27, occy - diffh/2))
+
+    if newx + upscaledw > width:
+        upscaledw = width - upscaledw
+
+    if newy + upscaledh > height:
+        upscaledh = height - upscaledh
+
+    occupied2 = (newx, newy, upscaledw, upscaledh)
+
+    _20by20 = resize(20, 20, crop(occupied2, image))
+    whitespace = [[0 for x in range(28)] for y in range(28)]
+    _28by28 = paste(_20by20, whitespace, (4, 4))
+    return _28by28
+
 
 class OcrPresentation(object):
     '''
@@ -128,25 +307,50 @@ class OcrPresentation(object):
         darkness = min(self.pixels[gridy][gridx] + 1, 1)
         self.pixels[gridy][gridx] = darkness
 
-        screenx, screeny = gridx*8, gridy*8
+    def draw_image(self, image, fmt):
         hexdigits = '0123456789abcdef'
-        fillcolor = '#{0}{0}{0}'.format(hexdigits[15-int(darkness*15)])
-        self.canvas.create_rectangle(screenx, screeny, screenx+7, screeny+7,
-                                     fill=fillcolor, outline=fillcolor)
+        for gridy, line in enumerate(image):
+            for gridx, val in enumerate(line):
+                screenx, screeny = gridx*8, gridy*8
+                digit = 15-int(val*15)
+                bounded_digit = bound(0, 15, digit)
+                if bounded_digit != 15:
+                    fillcolor = fmt.format(hexdigits[bounded_digit])
+                    self.canvas.create_rectangle(screenx, screeny, screenx+7, screeny+7,
+                                                fill=fillcolor, outline=fillcolor)
 
+    def draw(self):
+        self.canvas.delete('all')
+        normalized = size_normalize_contents(self.pixels)
+        self.draw_image(normalized, '#{0}{0}f')
+        self.draw_image(self.pixels, '#{0}{0}{0}')
 
     def update(self):
         # Try to push an image out to the net, and check for any results that
         # came back.
+        self.draw()
         if self.worker is not None:
             try:
-                prediction = self.input_queue.get_nowait()
-                self.label.config(text='Prediction: {0}'.format(prediction))
+                outputlayer = self.input_queue.get_nowait()
+                highest = max(outputlayer)
+                normalizedoutputs = [x/highest for x in outputlayer]
+                outputbars = ['=' * int(10*x) for x in normalizedoutputs]
+
+                labeltext = []
+                labeltext.append('Output layer')
+                for idx, bar in enumerate(outputbars):
+                    labeltext.append('{0}: {1}'.format(idx, bar))
+
+                labeltext.append('')
+                prediction = max(range(len(outputlayer)), key=outputlayer.__getitem__)
+                labeltext.append('Prediction: {0}'.format(prediction))
+
+                self.label.config(text='\n'.join(labeltext), justify=LEFT)
                 self.output_queue.put_nowait(self.pixels)
             except queue.Empty:
                 pass
             except queue.Full:
-                print("This shouldn't happen.")
+                print("Queue full, this shouldn't happen.")
         self.root.after(20, self.update)
 
 
@@ -165,10 +369,10 @@ class OcrWorker(object):
     def loop(self):
         while True:
             image = self.input_queue.get()
-            flatpixels = [row for col in image for row in col]
+            normalized = size_normalize_contents(image)
+            flatpixels = [row for col in normalized for row in col]
             outputs = self.net.predict(flatpixels)
-            predictedint = max(range(len(outputs)), key=outputs.__getitem__)
-            self.output_queue.put(predictedint)
+            self.output_queue.put(outputs)
 
 
 class Ocr(object):
