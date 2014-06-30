@@ -259,6 +259,7 @@ class OcrPresentation(object):
         clearbtn.pack(side=LEFT)
         self.label = Label(self.root, text='-1')
         self.label.pack()
+        self.maxoutputsignal = 0
         exit = Button(frame2, text='Exit', command=self.exitpressed)
         exit.pack(side=LEFT)
 
@@ -299,6 +300,7 @@ class OcrPresentation(object):
     def clearpressed(self):
         self.pixels = [[0 for x in range(28)] for y in range(28)]
         self.canvas.create_rectangle(0, 0, 28*8, 28*8, fill='white', outline='white')
+        self.maxoutputsignal = 0
 
     def mouseheld(self, event):
         gridx, gridy = event.x//8, event.y//8
@@ -333,11 +335,13 @@ class OcrPresentation(object):
             try:
                 outputlayer = self.input_queue.get_nowait()
                 highest = max(outputlayer)
-                normalizedoutputs = [x/highest for x in outputlayer]
+                roundedhighest = round(highest, 5)
+                self.maxoutputsignal = max(self.maxoutputsignal, roundedhighest)
+                normalizedoutputs = [x/self.maxoutputsignal for x in outputlayer]
                 outputbars = ['=' * int(10*x) for x in normalizedoutputs]
 
                 labeltext = []
-                labeltext.append('Output layer')
+                labeltext.append('Output layer ({0} signal for 10 bars)'.format(self.maxoutputsignal))
                 for idx, bar in enumerate(outputbars):
                     labeltext.append('{0}: {1}'.format(idx, bar))
 
