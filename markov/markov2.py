@@ -3,7 +3,6 @@
 import string
 import random
 import time
-import re
 import sys
 
 
