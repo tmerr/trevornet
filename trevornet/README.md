@@ -1,6 +1,6 @@
 #TrevorNet
 
-This is the repo I'm using to keep track of my AI related projects. I'm just learning the basics, working on questions like "What, neural nets are a thing?" and "How can I use that to take over the planet?". So far I have
+So far I have
 - A (slow!) python implementation of a neural network using backpropagation as the learning algo. 
 - Code to read in the MNIST database of handwritten digits.
 - A GUI that lets you draw letters/numbers by hand and see the neural net's guess of what it is.
