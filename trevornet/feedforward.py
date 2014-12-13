@@ -3,7 +3,7 @@ import random
 import math
 
 
-class PyFeedForwardNet(object):
+class FeedForwardNet(object):
     """A backpropagating feed forward neural network."""
 
     def __init__(self, layers):

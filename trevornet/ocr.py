@@ -1,5 +1,7 @@
+#!python3
+
 from trevornet import idx
-from trevornet.nets.feedforward import PyFeedForwardNet
+from trevornet.feedforward import FeedForwardNet
 import os
 from tkinter import *
 from tkinter import filedialog
@@ -360,7 +362,7 @@ class OcrPresentation(object):
 
 class OcrWorker(object):
     def __init__(self, fname, input_queue, output_queue):
-        self.net = PyFeedForwardNet.fromfile(fname)
+        self.net = FeedForwardNet.fromfile(fname)
         if len(self.net.inputlayer) != 28*28:
             raise ValueError('Expected a 28*28 input layer')
         if len(self.net.outputlayer) != 10:
@@ -390,7 +392,7 @@ class Ocr(object):
 
     @classmethod
     def fromfile(cls, fpath):
-        net = PyFeedForwardNet.fromfile(fpath)
+        net = FeedForwardNet.fromfile(fpath)
         if len(net.inputlayer) != 28*28:
             raise ValueError('Ocr net expected a 28*28 input layer')
         if len(net.outputlayer) != 10:
@@ -399,7 +401,7 @@ class Ocr(object):
 
     @classmethod
     def fromrandom(cls):
-        net = PyFeedForwardNet.fromfuncs((28*28, 25, 25, 10), .05)
+        net = FeedForwardNet.fromfuncs((28*28, 25, 25, 10), .05)
         return cls(net)
 
     def tofile(self, fname):

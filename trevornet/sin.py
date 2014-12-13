@@ -1,6 +1,12 @@
+#!python3
+
+from trevornet.feedforward import FeedForwardNet
+import random
+import math
+
 def sin():
     """A normalized sin: f(x) = .5*sin(x)+.5"""
-    net = PyFeedForwardNet.fromfuncs((1, 20, 1), .25)
+    net = FeedForwardNet.fromfuncs((1, 20, 1), .25)
 
     for i in range(50000):
         if i % 5000 == 0:

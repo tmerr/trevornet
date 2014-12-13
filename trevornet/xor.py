@@ -1,6 +1,9 @@
+from trevornet.feedforward import FeedForwardNet
+import random
+
 def xor():
     """Exclusive or"""
-    net = PyFeedForwardNet.fromfuncs((2, 2, 1), .5)
+    net = FeedForwardNet.fromfuncs((2, 2, 1), .5)
 
     domain = ((1, 1), (1, 0), (0, 1), (0, 0))
     rng = ((0,), (1,), (1,), (0,))
