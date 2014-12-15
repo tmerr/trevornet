@@ -1,17 +1,17 @@
 #!python3
 
+'''
+An implementation of a markov chain used for text generation.
+
+Just pass a file name as an argument and it should load it up, build a markov
+chain with a state for each word(s), and start walking through the chain,
+writing incoherent text to the terminal.
+'''
+
 import string
 import random
 import time
 import sys
-
-
-'''
-This is an implementation of a markov chain used for text generation.
-Just pass a file name as an argument and it should load it up, build a markov
-chain with a state for each word(s), and start walking through the chain, writing
-incoherent text to the terminal.
-'''
 
 
 asciiset = set(string.ascii_letters)
