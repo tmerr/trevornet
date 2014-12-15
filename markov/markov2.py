@@ -56,8 +56,17 @@ def buildtransitionmap(tokens, order):
     return dct
 
 
-def transition(word, transmap):
-    return random.choice(transmap[word])
+def walk(transmap, prev=None):
+    if prev == None:
+        prev = random.choice(list(transmap.keys()))
+
+    while True:
+        if not prev in transmap:
+            prev = random.choice(list(transmap.keys()))
+
+        word = random.choice(transmap[prev])
+        yield word
+        prev = prev[1:]+(word,)
 
 
 def eternalramble(fname, order):
@@ -65,11 +74,8 @@ def eternalramble(fname, order):
     Walk through the markov chain printing out words to the terminal one at a time
     '''
     transmap = buildtransitionmap(tokenize(fname), order)
-    prev = random.choice(list(transmap.keys()))
-    while True:
-        word = transition(prev, transmap)
+    for word in walk(transmap):
         print(word, end=' ')
-        prev  = prev[1:]+(word,)
         sys.stdout.flush()
         time.sleep(0.25)
 
