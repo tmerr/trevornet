@@ -1,15 +1,17 @@
+#!python3
+
+'''
+An implementation of a markov chain used for text generation.
+
+Just pass a file name as an argument and it should load it up, build a markov
+chain with a state for each word(s), and start walking through the chain,
+writing incoherent text to the terminal.
+'''
+
 import string
 import random
 import time
 import sys
-
-
-'''
-This is an implementation of a markov chain used for text generation.
-Just pass a file name as an argument and it should load it up, build a markov
-chain with a state for each word, and start walking through the chain, writing
-incoherent text to the terminal.
-'''
 
 
 asciiset = set(string.ascii_letters)
@@ -39,39 +41,64 @@ def tokenize(fname):
                     yield word
 
 
-def buildtransitionmap(tokens):
+def buildtransitionmap(tokens, order):
     dct = {}
-    prev = '.'
+    prev = ('',)*order
 
-    for word in tokens:
+    for token in tokens:
         if prev in dct:
-            dct[prev].append(word)
+            dct[prev].append(token)
         else:
-            dct[prev] = [word]
+            dct[prev] = [token]
 
-        prev = word
+        prev = prev[1:]+(token,)
         
     return dct
 
 
-def transition(word, transmap):
-    return random.choice(transmap[word])
+def walk(transmap, prev=None):
+    if prev == None:
+        prev = random.choice(list(transmap.keys()))
 
-
-def eternalramble(fname):
-    '''Walk through the markov chain printing out words to the terminal one at a time'''
-    transmap = buildtransitionmap(tokenize(fname))
-    word = '.'
     while True:
-        word = transition(word, transmap)
+        if not prev in transmap:
+            prev = random.choice(list(transmap.keys()))
+
+        word = random.choice(transmap[prev])
+        yield word
+        prev = prev[1:]+(word,)
+
+
+def eternalramble(fname, order):
+    '''
+    Walk through the markov chain printing out words to the terminal one at a time
+    '''
+    transmap = buildtransitionmap(tokenize(fname), order)
+    for word in walk(transmap):
         print(word, end=' ')
         sys.stdout.flush()
         time.sleep(0.25)
 
 
+def printusage():
+    print('Usage: markov filename order')
+    print('  filename: the filename of the text to base the markov chain on.')
+    print('  order: how many consecutive words make up each state (2 works well)')
+
+
+def launch():
+    if len(sys.argv) != 3:
+        printusage()
+        return
+
+    try:
+        order = int(sys.argv[2])
+    except:
+        printusage()
+        return
+
+    eternalramble(sys.argv[1], order)
+
+
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        eternalramble(sys.argv[1])
-    else:
-        print('Usage: markov filename')
-        print('  filename: the filename of the text to base the markov chain on.')
+    launch()
