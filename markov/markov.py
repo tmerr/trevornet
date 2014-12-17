@@ -12,6 +12,7 @@ import string
 import random
 import time
 import sys
+import argparse
 
 
 asciiset = set(string.ascii_letters)
@@ -69,10 +70,17 @@ def walk(transmap, prev=None):
         prev = prev[1:]+(word,)
 
 
+def finiteramble(fname, order, n):
+    '''Write n words to the terminal by walking through the markov chain'''
+    transmap = buildtransitionmap(tokenize(fname), order)
+    for i, word in enumerate(walk(transmap)):
+        if i == n:
+            break
+        print(word, end=' ')
+
+
 def eternalramble(fname, order):
-    '''
-    Walk through the markov chain printing out words to the terminal one at a time
-    '''
+    '''Endlessly write words to the terminal by walking through the markov chain'''
     transmap = buildtransitionmap(tokenize(fname), order)
     for word in walk(transmap):
         print(word, end=' ')
@@ -80,24 +88,22 @@ def eternalramble(fname, order):
         time.sleep(0.25)
 
 
-def printusage():
-    print('Usage: markov filename order')
-    print('  filename: the filename of the text to base the markov chain on.')
-    print('  order: how many consecutive words make up each state (2 works well)')
-
-
 def launch():
-    if len(sys.argv) != 3:
-        printusage()
-        return
+    desctxt = 'a markov chain based text generator.'
+    parser = argparse.ArgumentParser(description=desctxt)
+    parser.add_argument('filename', type=str,
+            help= 'the filename of the text to base the markov chain on')
+    parser.add_argument('order', type=int,
+            help= 'how many consecutive words make up each state (2 works well)')
+    parser.add_argument('n', type=int, nargs='?', default=None,
+            help= 'the number of words to output. if omitted there will be no limit.')
 
-    try:
-        order = int(sys.argv[2])
-    except:
-        printusage()
-        return
+    args = parser.parse_args()
 
-    eternalramble(sys.argv[1], order)
+    if (args.n is None):
+        eternalramble(args.filename, args.order)
+    else:
+        finiteramble(args.filename, args.order, args.n)
 
 
 if __name__ == '__main__':
